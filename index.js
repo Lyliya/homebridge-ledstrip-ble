@@ -74,7 +74,7 @@ class Device {
     });
   }
 
-  set_power(status) {
+  async set_power(status) {
     if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       const buffer = Buffer.from(
