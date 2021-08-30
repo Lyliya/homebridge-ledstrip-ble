@@ -53,7 +53,7 @@ class Device {
         if (peripheral.uuid == this.uuid) {
           this.peripheral = peripheral;
           peripheral.once('disconnect', () => {
-            this.log('Disconnected');
+            console.log("Disconnected");
             this.connected = false;
           });
           noble.stopScanning();
