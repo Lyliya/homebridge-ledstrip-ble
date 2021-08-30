@@ -75,7 +75,7 @@ class Device {
   }
 
   set_power(status) {
-    console.log(this.connected);
+    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       const buffer = Buffer.from(
         `7e0004${status ? '01' : '00'}00000000ef`,
@@ -90,7 +90,7 @@ class Device {
   }
 
   async set_brightness(level) {
-    if (!connected) await this.connect();
+    if (!this.connected) await this.connect();
     if (level > 100 || level < 0) return;
     if (this.connected && this.write) {
       const level_hex = ('0' + level.toString(16)).slice(-2);
