@@ -1,0 +1,23 @@
+{
+    "name": "@lyliya/homebridge-ledstrip-ble",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+        "@abandonware/noble": "^1.9.2-14"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Lyliya/homebridge-ledstrip-ble.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Lyliya/homebridge-ledstrip-ble/issues"
+    },
+    "homepage": "https://github.com/Lyliya/homebridge-ledstrip-ble#readme"
+}
