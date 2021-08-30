@@ -1,10 +1,18 @@
 {
     "name": "@lyliya/homebridge-ledstrip-ble",
     "version": "1.0.0",
+    "displayName": "Homebridge Ledstrip BLE",
     "description": "",
     "main": "index.js",
     "dependencies": {
         "@abandonware/noble": "^1.9.2-14"
+    },
+    "keywords": [
+      "homebridge-plugin"
+    ],
+    "engines": {
+      "node": ">=12.13.0",
+      "homebridge": ">=1.3.0"
     },
     "devDependencies": {},
     "scripts": {
