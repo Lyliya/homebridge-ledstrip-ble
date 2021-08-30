@@ -89,7 +89,7 @@ class Device {
     }
   }
 
-  set_brightness(level) {
+  async set_brightness(level) {
     if (!connected) await this.connect();
     if (level > 100 || level < 0) return;
     if (this.connected && this.write) {
@@ -103,7 +103,7 @@ class Device {
     }
   }
 
-  set_rgb(r, g, b) {
+  async set_rgb(r, g, b) {
     if (!connected) await this.connect();
     if (this.connected && this.write) {
       const rhex = ('0' + r.toString(16)).slice(-2);
@@ -118,7 +118,7 @@ class Device {
     }
   }
 
-  set_hue(hue) {
+  async set_hue(hue) {
     if (!connected) await this.connect();
     if (this.connected && this.write) {
       this.hue = hue;
@@ -127,7 +127,7 @@ class Device {
     }
   }
 
-  set_saturation(saturation) {
+  async set_saturation(saturation) {
     if (!connected) await this.connect();
     if (this.connected && this.write) {
       this.saturation = saturation;
