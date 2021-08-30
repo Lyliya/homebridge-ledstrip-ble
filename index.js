@@ -36,7 +36,7 @@ function hslToRgb(h, s, l) {
 class Device {
   constructor(uuid) {
     this.uuid = uuid;
-    this.on = false;
+    this.connected = false;
     this.brightness = 50;
     this.hue = 0;
     this.saturation = 0;
@@ -84,7 +84,7 @@ class Device {
       console.log('Write:', buffer);
       this.write.write(buffer, true, err => {
         if (err) console.log('Error:', err);
-        this.on = status;
+        this.connected = status;
       });
     }
   }
@@ -189,8 +189,8 @@ LedStrip.prototype = {
     return [infoService, this.bulb];
   },
   getPower: function (callback) {
-    this.log('Homekit Asked Power State', this.device.on);
-    callback(null, this.device.on);
+    this.log('Homekit Asked Power State', this.device.connected);
+    callback(null, this.device.connected);
   },
   setPower: function (on, callback) {
     this.log('Homekit Gave New Power State' + ' ' + on);
