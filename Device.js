@@ -94,7 +94,7 @@ module.exports = class Device {
   }
 
   async set_rgb(r, g, b) {
-    if (!connected) await this.connect();
+    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       const rhex = ('0' + r.toString(16)).slice(-2);
       const ghex = ('0' + g.toString(16)).slice(-2);
