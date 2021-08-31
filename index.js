@@ -1,5 +1,3 @@
-const noble = require('@abandonware/noble');
-
 const Device = require('./Device');
 
 let Service, Characteristic;
@@ -45,7 +43,6 @@ function LedStrip(log, config, api) {
   this.log('Device UUID:', this.uuid);
 
   this.device = new Device(this.uuid);
-  this.device.connect();
 }
 
 LedStrip.prototype = {
@@ -58,7 +55,7 @@ LedStrip.prototype = {
   },
   getPower: function (callback) {
     this.log('Homekit Asked Power State', this.device.connected);
-    callback(null, this.device.connected);
+    callback(null, this.device.power);
   },
   setPower: function (on, callback) {
     this.log('Homekit Gave New Power State' + ' ' + on);

@@ -1,3 +1,5 @@
+const noble = require('@abandonware/noble');
+
 function hslToRgb(h, s, l) {
   var r, g, b;
 
@@ -27,45 +29,44 @@ module.exports = class Device {
   constructor(uuid) {
     this.uuid = uuid;
     this.connected = false;
+    this.power = false;
     this.brightness = 50;
     this.hue = 0;
     this.saturation = 0;
     this.l = 0.5;
-  }
 
-  connect() {
-    return new Promise((resolve, reject) => {
-      console.log('Start scanning for', this.uuid);
-      noble.startScanningAsync();
+    noble.on('stateChange', state => {
+      if (state == 'poweredOn') {
+        noble.startScanningAsync();
+      }
+    });
 
-      noble.on('discover', async peripheral => {
-        console.log(peripheral.uuid, peripheral.advertisement.localName);
-        if (peripheral.uuid == this.uuid) {
-          this.peripheral = peripheral;
-          peripheral.once('disconnect', () => {
-            console.log('Disconnected');
-            this.connected = false;
-          });
-          noble.stopScanning();
-          await peripheral.connectAsync();
-          console.log('Connected');
-          this.connected = true;
-          console.log(this.connected);
-          const { characteristics } =
-            await peripheral.discoverSomeServicesAndCharacteristicsAsync(
-              ['fff0'],
-              ['fff3']
-            );
-          console.log(characteristics);
-          this.write = characteristics[0];
-          resolve();
-        }
-      });
+    noble.on('discover', async peripheral => {
+      console.log(peripheral.uuid, peripheral.advertisement.localName);
+      if (peripheral.uuid == this.uuid) {
+        this.peripheral = peripheral;
+        peripheral.once('disconnect', () => {
+          console.log('Disconnected');
+          this.connected = false;
+        });
+        noble.stopScanning();
+        await peripheral.connectAsync();
+        console.log('Connected');
+        this.connected = true;
+        console.log(this.connected);
+        const { characteristics } =
+          await peripheral.discoverSomeServicesAndCharacteristicsAsync(
+            ['fff0'],
+            ['fff3']
+          );
+        console.log(characteristics);
+        this.write = characteristics[0];
+        // resolve();
+      }
     });
   }
 
   async set_power(status) {
-    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       const buffer = Buffer.from(
         `7e0004${status ? '01' : '00'}00000000ef`,
@@ -74,13 +75,12 @@ module.exports = class Device {
       console.log('Write:', buffer);
       this.write.write(buffer, true, err => {
         if (err) console.log('Error:', err);
-        this.connected = status;
+        this.power = status;
       });
     }
   }
 
   async set_brightness(level) {
-    if (!this.connected) await this.connect();
     if (level > 100 || level < 0) return;
     if (this.connected && this.write) {
       const level_hex = ('0' + level.toString(16)).slice(-2);
@@ -94,7 +94,6 @@ module.exports = class Device {
   }
 
   async set_rgb(r, g, b) {
-    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       const rhex = ('0' + r.toString(16)).slice(-2);
       const ghex = ('0' + g.toString(16)).slice(-2);
@@ -108,7 +107,6 @@ module.exports = class Device {
   }
 
   async set_hue(hue) {
-    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       this.hue = hue;
       const rgb = hslToRgb(hue, this.saturation, this.l);
@@ -117,7 +115,6 @@ module.exports = class Device {
   }
 
   async set_saturation(saturation) {
-    if (!this.connected) await this.connect();
     if (this.connected && this.write) {
       this.saturation = saturation;
       const rgb = hslToRgb(this.hue, saturation, this.l);
