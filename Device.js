@@ -51,6 +51,9 @@ module.exports = class Device {
         peripheral.once('disconnect', () => {
           console.log('Disconnected');
           this.connected = false;
+          setTimeout(() => {
+            noble.startScanningAsync();
+          }, 5000);
         });
         noble.stopScanning();
         await peripheral.connectAsync();
