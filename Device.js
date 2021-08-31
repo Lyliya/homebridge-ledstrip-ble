@@ -109,7 +109,7 @@ module.exports = class Device {
   async set_hue(hue) {
     if (this.connected && this.write) {
       this.hue = hue;
-      const rgb = hslToRgb(hue, this.saturation, this.l);
+      const rgb = hslToRgb(hue / 360, this.saturation / 100, this.l);
       this.set_rgb(rgb[0], rgb[1], rgb[2]);
     }
   }
@@ -117,7 +117,7 @@ module.exports = class Device {
   async set_saturation(saturation) {
     if (this.connected && this.write) {
       this.saturation = saturation;
-      const rgb = hslToRgb(this.hue, saturation, this.l);
+      const rgb = hslToRgb(this.hue / 360, saturation / 100, this.l);
       this.set_rgb(rgb[0], rgb[1], rgb[2]);
     }
   }
