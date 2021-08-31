@@ -75,6 +75,7 @@ LedStrip.prototype = {
     callback(null, this.device.hue);
   },
   setHue: function (hue, callback) {
+    this.log('Homekit Set Hue', hue);
     this.device.set_hue(hue);
     callback(null);
   },
@@ -82,6 +83,7 @@ LedStrip.prototype = {
     callback(null, this.device.saturation);
   },
   setSaturation: function (saturation, callback) {
+    this.log('Homekit Set Saturation', hue);
     this.device.set_saturation(saturation);
     callback(null);
   }
