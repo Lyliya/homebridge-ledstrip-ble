@@ -83,7 +83,7 @@ LedStrip.prototype = {
     callback(null, this.device.saturation);
   },
   setSaturation: function (saturation, callback) {
-    this.log('Homekit Set Saturation', hue);
+    this.log('Homekit Set Saturation', saturation);
     this.device.set_saturation(saturation);
     callback(null);
   }
