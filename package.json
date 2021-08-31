@@ -1,6 +1,6 @@
 {
     "name": "@lyliya/homebridge-ledstrip-ble",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "displayName": "Homebridge Ledstrip BLE",
     "description": "",
     "main": "index.js",
