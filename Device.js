@@ -36,10 +36,11 @@ module.exports = class Device {
     this.l = 0.5;
 
     noble.on('stateChange', state => {
+      console.log('State:', state);
       if (state == 'poweredOn') {
         noble.startScanningAsync();
       } else {
-        this.peripheral.disconnect();
+        if (this.peripheral) this.peripheral.disconnect();
         this.connected = false;
       }
     });
