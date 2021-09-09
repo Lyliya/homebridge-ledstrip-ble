@@ -1,10 +1,12 @@
 # homebridge-ledstrip-ble
 
 This plugin let you control RGB ledstrips using this kind of [12V BLE RGB LED strip controller](https://www.aliexpress.com/item/4000208329326.html) module.
+
 Control On/Off, Hue, Saturation and Brightness
 
 ## Prerequisite
 You need to have a bluetooth device. Check using `hcitool dev` command. You may also need root access with Homebridge
+
 To run without root access, go to homebridge terminal and type ```sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)```
 
 ## Installation
@@ -12,7 +14,7 @@ To run without root access, go to homebridge terminal and type ```sudo setcap ca
 `npm i @lyliya/homebridge-ledstrip-ble`
 
 ## Configuration
-```json
+```js
 {
     "accessory": "LedStrip", // Dont change
     "name": "LED", // Accessory name
