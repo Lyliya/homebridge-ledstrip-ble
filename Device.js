@@ -77,7 +77,7 @@ module.exports = class Device {
     this.connected = true;
     console.log(this.connected);
     const { characteristics } =
-      await peripheral.discoverSomeServicesAndCharacteristicsAsync(
+      await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
         ["fff0"],
         ["fff3"]
       );
