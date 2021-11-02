@@ -1,4 +1,4 @@
-const noble = require('@abandonware/noble');
+const noble = require("@abandonware/noble");
 
 function hslToRgb(h, s, l) {
   var r, g, b;
@@ -34,104 +34,133 @@ module.exports = class Device {
     this.hue = 0;
     this.saturation = 0;
     this.l = 0.5;
+    this.peripheral = undefined;
 
-    noble.on('stateChange', state => {
-      console.log('State:', state);
-      if (state == 'poweredOn') {
+    noble.on("stateChange", state => {
+      console.log("State:", state);
+      if (state == "poweredOn") {
         noble.startScanningAsync();
       } else {
-        if (this.peripheral) this.peripheral.disconnect();
+        // if (this.peripheral) this.peripheral.disconnect();
         this.connected = false;
       }
     });
 
-    noble.on('discover', async peripheral => {
+    noble.on("discover", async peripheral => {
       console.log(peripheral.uuid, peripheral.advertisement.localName);
       if (peripheral.uuid == this.uuid) {
         this.peripheral = peripheral;
-        peripheral.once('disconnect', () => {
-          console.log('Disconnected');
-          this.connected = false;
-          setTimeout(() => {
-            noble.startScanningAsync();
-          }, 5000);
-        });
         noble.stopScanning();
-        await peripheral.connectAsync();
-        console.log('Connected');
-        this.connected = true;
-        console.log(this.connected);
-        const { characteristics } =
-          await peripheral.discoverSomeServicesAndCharacteristicsAsync(
-            ['fff0'],
-            ['fff3']
-          );
-        console.log(characteristics);
-        this.write = characteristics[0];
+        // peripheral.once("disconnect", () => {
+        //   console.log("Disconnected");
+        //   this.connected = false;
+        // });
+        // noble.stopScanning();
+        // await peripheral.connectAsync();
+        // console.log("Connected");
+        // this.connected = true;
+        // console.log(this.connected);
+        // const { characteristics } =
+        //   await peripheral.discoverSomeServicesAndCharacteristicsAsync(
+        //     ["fff0"],
+        //     ["fff3"]
+        //   );
+        // console.log(characteristics);
+        // this.write = characteristics[0];
         // resolve();
       }
     });
   }
 
-  async set_power(status) {
-    if (this.connected && this.write) {
-      const buffer = Buffer.from(
-        `7e0004${status ? '01' : '00'}00000000ef`,
-        'hex'
+  async connectAndGetWriteCharacteristics() {
+    await this.peripheral.connectAsync();
+    this.connected = true;
+    console.log(this.connected);
+    const { characteristics } =
+      await peripheral.discoverSomeServicesAndCharacteristicsAsync(
+        ["fff0"],
+        ["fff3"]
       );
-      console.log('Write:', buffer);
+    console.log(characteristics);
+    this.write = characteristics[0];
+  }
+
+  async disconnect() {
+    if (this.peripheral) {
+      await this.peripheral.disconnectAsync();
+      this.connected = false;
+    }
+  }
+
+  async set_power(status) {
+    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (this.write) {
+      const buffer = Buffer.from(
+        `7e0004${status ? "01" : "00"}00000000ef`,
+        "hex"
+      );
+      console.log("Write:", buffer);
       this.write.write(buffer, true, err => {
-        if (err) console.log('Error:', err);
+        if (err) console.log("Error:", err);
         this.power = status;
+        this.disconnect();
       });
     }
   }
 
   async set_brightness(level) {
     if (level > 100 || level < 0) return;
-    if (this.connected && this.write) {
-      const level_hex = ('0' + level.toString(16)).slice(-2);
-      const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, 'hex');
-      console.log('Write:', buffer);
+    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (this.write) {
+      const level_hex = ("0" + level.toString(16)).slice(-2);
+      const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, "hex");
+      console.log("Write:", buffer);
       this.write.write(buffer, true, err => {
-        if (err) console.log('Error:', err);
+        if (err) console.log("Error:", err);
         this.brightness = level;
+        this.disconnect();
       });
     }
   }
 
   async set_rgb(r, g, b) {
-    if (this.connected && this.write) {
-      const rhex = ('0' + r.toString(16)).slice(-2);
-      const ghex = ('0' + g.toString(16)).slice(-2);
-      const bhex = ('0' + b.toString(16)).slice(-2);
-      const buffer = Buffer.from(`7e000503${rhex}${ghex}${bhex}00ef`, 'hex');
-      console.log('Write:', buffer);
+    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (this.write) {
+      const rhex = ("0" + r.toString(16)).slice(-2);
+      const ghex = ("0" + g.toString(16)).slice(-2);
+      const bhex = ("0" + b.toString(16)).slice(-2);
+      const buffer = Buffer.from(`7e000503${rhex}${ghex}${bhex}00ef`, "hex");
+      console.log("Write:", buffer);
       this.write.write(buffer, true, err => {
-        if (err) console.log('Error:', err);
+        if (err) console.log("Error:", err);
+        this.disconnect();
       });
     }
   }
 
   async set_hue(hue) {
-    if (this.connected && this.write) {
+    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (this.write) {
       this.hue = hue;
       const rgb = hslToRgb(hue / 360, this.saturation / 100, this.l);
       this.set_rgb(rgb[0], rgb[1], rgb[2]);
+      this.disconnect();
     }
   }
 
   async set_saturation(saturation) {
-    if (this.connected && this.write) {
+    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (this.write) {
       this.saturation = saturation;
       const rgb = hslToRgb(this.hue / 360, saturation / 100, this.l);
       this.set_rgb(rgb[0], rgb[1], rgb[2]);
+      this.disconnect();
     }
   }
 
-  send_buffer(line) {
-    this.write.write(Buffer.from(line, 'hex'), true, err => {
-      console.log('Error:', err);
-    });
-  }
+  //   send_buffer(line) {
+  //     this.write.write(Buffer.from(line, "hex"), true, err => {
+  //       console.log("Error:", err);
+  //     });
+  //   }
 };
