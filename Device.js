@@ -30,7 +30,7 @@ module.exports = class Device {
     this.uuid = uuid;
     this.connected = false;
     this.power = false;
-    this.brightness = 50;
+    this.brightness = 100;
     this.hue = 0;
     this.saturation = 0;
     this.l = 0.5;
@@ -51,31 +51,18 @@ module.exports = class Device {
       if (peripheral.uuid == this.uuid) {
         this.peripheral = peripheral;
         noble.stopScanning();
-        // peripheral.once("disconnect", () => {
-        //   console.log("Disconnected");
-        //   this.connected = false;
-        // });
-        // noble.stopScanning();
-        // await peripheral.connectAsync();
-        // console.log("Connected");
-        // this.connected = true;
-        // console.log(this.connected);
-        // const { characteristics } =
-        //   await peripheral.discoverSomeServicesAndCharacteristicsAsync(
-        //     ["fff0"],
-        //     ["fff3"]
-        //   );
-        // console.log(characteristics);
-        // this.write = characteristics[0];
-        // resolve();
       }
     });
   }
 
   async connectAndGetWriteCharacteristics() {
+    if (!this.peripheral) {
+      noble.startScanningAsync();
+      return;
+    }
     await this.peripheral.connectAsync();
     this.connected = true;
-    console.log(this.connected);
+    //console.log(this.connected);
     const { characteristics } =
       await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
         ["fff0"],
