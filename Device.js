@@ -75,6 +75,7 @@ module.exports = class Device {
   async disconnect() {
     if (this.peripheral) {
       await this.peripheral.disconnectAsync();
+      this.peripheral = undefined;
       this.connected = false;
     }
   }
