@@ -88,7 +88,7 @@ module.exports = class Device {
   }
 
   async set_power(status) {
-    if (!this.isConnected()) await this.connect();
+    if (!this.isConnected()) return;
     if (this.write) {
       const buffer = Buffer.from(
         `7e0004${status ? "01" : "00"}00000000ef`,
@@ -104,7 +104,7 @@ module.exports = class Device {
 
   async set_brightness(level) {
     if (level > 100 || level < 0) return;
-    if (!this.isConnected()) await this.connect();
+    if (!this.isConnected()) return 0;
     if (this.write) {
       const level_hex = ("0" + level.toString(16)).slice(-2);
       const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, "hex");
@@ -117,7 +117,7 @@ module.exports = class Device {
   }
 
   async set_rgb(r, g, b) {
-    if (!this.isConnected()) await this.connect();
+    if (!this.isConnected()) return;
     if (this.write) {
       const rhex = ("0" + r.toString(16)).slice(-2);
       const ghex = ("0" + g.toString(16)).slice(-2);
@@ -131,7 +131,7 @@ module.exports = class Device {
   }
 
   async set_hue(hue) {
-    if (!this.isConnected()) await this.connect();
+    if (!this.isConnected()) return;
     if (this.write) {
       this.hue = hue;
       const rgb = hslToRgb(hue / 360, this.saturation / 100, this.l);
@@ -141,7 +141,7 @@ module.exports = class Device {
   }
 
   async set_saturation(saturation) {
-    if (!this.isConnected()) await this.connect();
+    if (!this.isConnected()) return;
     if (this.write) {
       this.saturation = saturation;
       const rgb = hslToRgb(this.hue / 360, saturation / 100, this.l);
