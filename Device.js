@@ -1,4 +1,4 @@
-const noble = require("@abandonware/noble");
+const noble = require("@abandonware/noble")({extended: false});
 
 function hslToRgb(h, s, l) {
   var r, g, b;
