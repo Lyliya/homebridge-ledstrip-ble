@@ -49,19 +49,14 @@ module.exports = class Device {
       console.log(peripheral.uuid, peripheral.advertisement.localName);
       if (peripheral.uuid == this.uuid) {
         this.peripheral = peripheral;
+        await noble.stopScanningAsync();
         console.log("Try to connect to", peripheral.uuid)
-        noble.stopScanning();
         await this.connect();
       }
     });
   }
 
   async connect() {
-    if (!this.peripheral) {
-        noble.startScanningAsync();
-        console.log("No peripheral found, try to rescan...");
-        return;
-    }
     await this.peripheral.connectAsync();
     if (this.peripheral.state === "connected") {
         console.log("Connected to", this.peripheral.address)
@@ -82,14 +77,7 @@ module.exports = class Device {
         ["fff3"]
       );
     this.write = characteristics[0];
-  }
-
-  async disconnect() {
-    return;
-    if (this.peripheral) {
-      await this.peripheral.disconnectAsync();
-      this.connected = false;
-    }
+    console.log("Got write characteristics", this.write.uuid)
   }
 
   async set_power(status) {
@@ -103,7 +91,6 @@ module.exports = class Device {
       this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
         this.power = status;
-        this.disconnect();
       });
     }
   }
@@ -118,7 +105,6 @@ module.exports = class Device {
       this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
         this.brightness = level;
-        this.disconnect();
       });
     }
   }
@@ -133,7 +119,6 @@ module.exports = class Device {
       console.log("Write:", buffer);
       this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
-        this.disconnect();
       });
     }
   }
@@ -157,10 +142,19 @@ module.exports = class Device {
       this.disconnect();
     }
   }
-
-  //   send_buffer(line) {
-  //     this.write.write(Buffer.from(line, "hex"), true, err => {
-  //       console.log("Error:", err);
-  //     });
-  //   }
 };
+
+process.on('SIGINT', function () {
+  console.log('Caught interrupt signal');
+  noble.stopScanning(() => process.exit());
+});
+
+process.on('SIGQUIT', function () {
+  console.log('Caught interrupt signal');
+  noble.stopScanning(() => process.exit());
+});
+
+process.on('SIGTERM', function () {
+  console.log('Caught interrupt signal');
+  noble.stopScanning(() => process.exit());
+});
