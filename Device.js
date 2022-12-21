@@ -100,7 +100,7 @@ module.exports = class Device {
         "hex"
       );
       console.log("Write:", buffer);
-      this.write.write(buffer, true, err => {
+      this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
         this.power = status;
         this.disconnect();
@@ -115,7 +115,7 @@ module.exports = class Device {
       const level_hex = ("0" + level.toString(16)).slice(-2);
       const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, "hex");
       console.log("Write:", buffer);
-      this.write.write(buffer, true, err => {
+      this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
         this.brightness = level;
         this.disconnect();
@@ -131,7 +131,7 @@ module.exports = class Device {
       const bhex = ("0" + b.toString(16)).slice(-2);
       const buffer = Buffer.from(`7e000503${rhex}${ghex}${bhex}00ef`, "hex");
       console.log("Write:", buffer);
-      this.write.write(buffer, true, err => {
+      this.write.write(buffer, false, err => {
         if (err) console.log("Error:", err);
         this.disconnect();
       });
