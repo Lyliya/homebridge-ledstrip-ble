@@ -1,5 +1,8 @@
 # homebridge-ledstrip-ble
 
+> [!WARNING]  
+> This plugin is no longer maintained as I now use HomeAssistant, feel free to open issue if needed, but I can't garantee fixing stuffs
+
 This plugin let you control RGB ledstrips using this kind of [12V BLE RGB LED strip controller](https://www.aliexpress.com/item/4000208329326.html) module.
 
 Control On/Off, Hue, Saturation and Brightness
