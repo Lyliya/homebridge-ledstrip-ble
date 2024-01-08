@@ -25,6 +25,10 @@ function hslToRgb(h, s, l) {
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
+function log(message) {
+    console.log(`[@lyliya/homebridge-ledstrip-ble]:`, message)
+}
+
 module.exports = class Device {
   constructor(uuid) {
     this.uuid = uuid;
@@ -37,17 +41,16 @@ module.exports = class Device {
     this.peripheral = undefined;
 
     noble.on("stateChange", (state) => {
-      console.log("State:", state);
       if (state == "poweredOn") {
         noble.startScanningAsync();
       } else {
-        // if (this.peripheral) this.peripheral.disconnect();
+        if (this.peripheral) this.peripheral.disconnect();
         this.connected = false;
       }
     });
 
     noble.on("discover", async (peripheral) => {
-      console.log(peripheral.uuid, peripheral.advertisement.localName);
+      console.log("[@lyliya/homebridge-ledstrip-ble]:", peripheral.uuid, peripheral.advertisement.localName);
       if (peripheral.uuid == this.uuid) {
         this.peripheral = peripheral;
         noble.stopScanning();
@@ -60,21 +63,23 @@ module.exports = class Device {
       noble.startScanningAsync();
       return;
     }
+    log(`Connecting to ${this.peripheral.uuid}...`)
     await this.peripheral.connectAsync();
+    log(`Connected`)
     this.connected = true;
     const { characteristics } =
       await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
         ["fff0"],
         ["fff3"]
       );
-    console.log(characteristics);
     this.write = characteristics[0];
   }
 
   async disconnect() {
-    return;
     if (this.peripheral) {
+      log("Deconnecting...")
       await this.peripheral.disconnectAsync();
+      log("Deconnected")
       this.connected = false;
     }
   }
@@ -86,7 +91,7 @@ module.exports = class Device {
         `7e0004${status ? "01" : "00"}00000000ef`,
         "hex"
       );
-      console.log("Write:", buffer);
+      log(buffer)
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
         this.power = status;
@@ -101,7 +106,7 @@ module.exports = class Device {
     if (this.write) {
       const level_hex = ("0" + level.toString(16)).slice(-2);
       const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, "hex");
-      console.log("Write:", buffer);
+      log(buffer)
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
         this.brightness = level;
@@ -117,7 +122,7 @@ module.exports = class Device {
       const ghex = ("0" + g.toString(16)).slice(-2);
       const bhex = ("0" + b.toString(16)).slice(-2);
       const buffer = Buffer.from(`7e000503${rhex}${ghex}${bhex}00ef`, "hex");
-      console.log("Write:", buffer);
+      log(buffer);
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
         this.disconnect();
